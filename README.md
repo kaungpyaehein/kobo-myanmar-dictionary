@@ -48,6 +48,21 @@ What was tested on the device:
 | Yes | Yes | No | Shows |
 | Yes | Yes | Yes | Shows, and list name shows `ဗမာ` |
 
+## Web installer: Kobo Myanmar Dictionary Kit
+
+`site/` is a static website that installs, checks and removes the dictionary straight from the browser (Chrome or Edge on a computer). Other browsers get download links and manual steps. English is the default; Burmese is one click away.
+
+Run it locally:
+
+```bash
+python3 tools/build_site.py
+python3 -m http.server 8765 --directory site
+```
+
+Then open http://localhost:8765. `build_site.py` copies the files from `dist/` into `site/files/` and writes `site/manifest.json` with their checksums. The site checks every file it writes, backs up the Kobo settings file to `.adds/kobo-myanmar-kit/`, and Remove puts the settings back.
+
+Tests for the install/remove logic: `npm test`.
+
 ## Build your own
 
 ```bash
@@ -56,6 +71,8 @@ python3 tools/convert.py SOURCE-dicthtml.zip NotoSansMyanmar-Regular.ttf dist
 ```
 
 `SOURCE-dicthtml.zip` is any Kobo dicthtml dictionary with normal Unicode Burmese. The base font is Noto Sans Myanmar (for example from Google Fonts or the `@fontsource/noto-sans-myanmar` package). A dictionary and its font must come from the same run.
+
+The same input always builds the same files.
 
 ## Credits and licenses
 

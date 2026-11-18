@@ -1,0 +1,34 @@
+{
+  "name": "Kobo Myanmar Dictionary Kit",
+  "version": "1.0",
+  "date": "2026-11-18",
+  "words": 111232,
+  "files": [
+    {
+      "id": "dictionary",
+      "url": "files/dicthtml-en-my.zip",
+      "size": 14297903,
+      "sha256": "7aa5cc03cb16b0b9627ac1bfea0dd5059a43f9efb836b3ef8df9211649f9ba8c",
+      "dest": [
+        ".kobo/custom-dict/dicthtml-en-my.zip"
+      ]
+    },
+    {
+      "id": "font",
+      "url": "files/NotoSansMyanmarKobo-Regular.ttf",
+      "size": 217840,
+      "sha256": "85b47d35cd7cc6d7fce4a2eeb49d416210d273b3bed7b7db2f248aa4563123c0",
+      "dest": [
+        "fonts/NotoSansMyanmarKobo-Regular.ttf",
+        "fonts/kobo/NotoSansMyanmarKobo-Regular.ttf"
+      ]
+    }
+  ],
+  "tested": [
+    {
+      "serialPrefix": "N428",
+      "model": "Kobo Libra Colour",
+      "firmware": "4.46.23852"
+    }
+  ]
+}

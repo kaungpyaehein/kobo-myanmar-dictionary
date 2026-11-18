@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kobo Myanmar Dictionary Kit</title>
+  <meta name="description" content="Install an English–Myanmar dictionary on your Kobo e-reader, with Burmese that shows correctly.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e3a53b'/%3E%3Cpath d='M14 18c7-3 13-2 18 2 5-4 11-5 18-2v28c-7-3-13-2-18 2-5-4-11-5-18-2z' fill='none' stroke='%231a1306' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M32 20v28' stroke='%231a1306' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600&family=Noto+Serif+Myanmar:wght@600;700&family=Noto+Serif:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--accent)"/><path d="M14 18c7-3 13-2 18 2 5-4 11-5 18-2v28c-7-3-13-2-18 2-5-4-11-5-18-2z" fill="none" stroke="var(--accent-ink)" stroke-width="4" stroke-linejoin="round"/><path d="M32 20v28" stroke="var(--accent-ink)" stroke-width="4"/></svg>
+      <span>Kobo Myanmar Dictionary Kit</span>
+    </a>
+    <button class="lang" id="lang" type="button">EN</button>
+  </header>
+
+  <main id="landing">
+    <section class="hero">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--accent)"/><path d="M14 18c7-3 13-2 18 2 5-4 11-5 18-2v28c-7-3-13-2-18 2-5-4-11-5-18-2z" fill="none" stroke="var(--accent-ink)" stroke-width="4" stroke-linejoin="round"/><path d="M32 20v28" stroke="var(--accent-ink)" stroke-width="4"/></svg>
+      <h1>Kobo Myanmar<br>Dictionary Kit</h1>
+      <p class="tagline" data-i18n="tagline"></p>
+      <span class="badge" data-i18n="unofficial"></span>
+      <p class="intro" data-i18n="intro"></p>
+      <a class="btn primary big" href="#kit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="cta"></span>
+      </a>
+      <p class="meta" id="version"></p>
+    </section>
+
+    <section class="showcase">
+      <div class="device" id="popup-mock" aria-label="Kobo dictionary popup example">
+        <div class="screen">
+          <p class="book">The village had not seen much <mark>change</mark> in fifty years. The same river ran past the same houses, and the market opened at dawn as it always had.</p>
+          <div class="popup">
+            <div class="popup-head"><span>English - ဗမာ (Custom)</span><span>▾</span></div>
+            <p class="hw">change</p>
+            <p><b>noun</b> <i>/tʃeɪndʒ/</i> [ချိန်း(ဂျ်)]</p>
+            <p>1. ပြောင်းလဲခြင်း၊ အပြောင်းအလဲ။</p>
+            <p class="ex">• There has been a significant change in the weather.</p>
+            <p><b>verb</b> <i>/tʃeɪndʒ/</i></p>
+            <p>2. ပြောင်းလဲသည်၊ အပြောင်းအလဲလုပ်သည်။</p>
+            <p class="ex">• He changed his clothes before going out.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <article><h3 data-i18n="f1t"></h3><p data-i18n="f1"></p></article>
+      <article><h3 data-i18n="f2t"></h3><p data-i18n="f2"></p></article>
+      <article><h3 data-i18n="f3t"></h3><p data-i18n="f3"></p></article>
+    </section>
+
+    <section class="block">
+      <h2 data-i18n="compatTitle"></h2>
+      <div class="compat">
+        <span class="pill ok" data-i18n="tested"></span>
+        <span data-i18n="testedModel"></span>
+      </div>
+      <p class="muted" data-i18n="untestedNote"></p>
+      <p class="muted" data-i18n="browserNote"></p>
+      <a class="link" href="#kit" data-i18n="check"></a>
+    </section>
+
+    <section class="block faq">
+      <h2 data-i18n="faqTitle"></h2>
+      <details><summary data-i18n="q1"></summary><p data-i18n="a1"></p></details>
+      <details><summary data-i18n="q2"></summary><p data-i18n="a2"></p></details>
+      <details><summary data-i18n="q3"></summary><p data-i18n="a3"></p></details>
+      <details><summary data-i18n="q4"></summary><p data-i18n="a4"></p></details>
+      <details><summary data-i18n="q5"></summary><p data-i18n="a5"></p></details>
+    </section>
+    <section class="block credits">
+      <h2 data-i18n="creditsTitle"></h2>
+      <p><span data-i18n="creditDict"></span> <a class="link" href="https://www.ornagai.com" target="_blank" rel="noopener">Ornagai</a></p>
+      <p class="muted" data-i18n="creditDictNote"></p>
+      <p><span data-i18n="creditFont"></span> <a class="link" href="https://fonts.google.com/noto/specimen/Noto+Sans+Myanmar" target="_blank" rel="noopener">Noto Sans Myanmar</a> <span data-i18n="creditFontNote"></span></p>
+    </section>
+  </main>
+
+  <main id="wizard" hidden></main>
+
+  <footer>
+    <p><span data-i18n="creditDict"></span> <a class="link" href="https://www.ornagai.com" target="_blank" rel="noopener">Ornagai</a> · <span data-i18n="creditFont"></span> <a class="link" href="https://fonts.google.com/noto/specimen/Noto+Sans+Myanmar" target="_blank" rel="noopener">Noto Sans Myanmar</a> <span data-i18n="creditFontNote"></span></p>
+    <p data-i18n="disclaimer"></p>
+  </footer>
+</body>
+</html>
