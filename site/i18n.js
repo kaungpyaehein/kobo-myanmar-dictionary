@@ -3,11 +3,10 @@
 export const TEXT = {
   en: {
     lang: 'မြန်မာ',
-    forLine: 'Beta · independent kit · not made by Kobo or Ornagai',
     tagline: 'Install the Ornagai English–Myanmar dictionary on your Kobo.',
     cta: 'Install or remove on Kobo',
     check: 'Check my Kobo',
-    version: 'Free · Chrome or Edge on a computer · v{v}',
+    version: 'Free · Beta',
     f1t: 'Burmese looks right',
     f1: 'No broken letters.',
     f2t: 'Ornagai dictionary',
@@ -102,11 +101,10 @@ export const TEXT = {
   // Burmese: formal written style (ပါသည်), short and plain.
   my: {
     lang: 'EN',
-    forLine: 'Beta · လွတ်လပ်သော Kit · Kobo သို့မဟုတ် Ornagai က ပြုလုပ်ထားခြင်း မဟုတ်ပါ',
     tagline: 'Ornagai English–မြန်မာ အဘိဓာန်ကို Kobo တွင် Install လုပ်ပါ',
     cta: 'Kobo တွင် Install / Remove လုပ်ရန်',
     check: 'Kobo ကို စစ်ဆေးရန်',
-    version: 'အခမဲ့ · ကွန်ပျူတာရှိ Chrome / Edge · v{v}',
+    version: 'အခမဲ့ · Beta',
     f1t: 'မြန်မာစာ မှန်ကန်စွာ ပေါ်သည်',
     f1: 'စာလုံးများ နေရာမလွဲတော့ပါ။',
     f2t: 'Ornagai အဘိဓာန်',

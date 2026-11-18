@@ -44,8 +44,7 @@ code { font-family: var(--mono); font-size: 0.85em; background: var(--panel-2); 
 main { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 .hero { text-align: center; padding: 40px 0 24px; }
 .logo { width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45)); }
-h1 { font: 600 clamp(28px, 5vw, 36px)/1.2 var(--serif); margin: 18px 0 12px; letter-spacing: -0.01em; text-wrap: balance; }
-.for { font: 500 15px/1.5 var(--sans); color: var(--muted); letter-spacing: 0.02em; margin: 0 0 20px; }
+h1 { font: 600 clamp(26px, 4.6vw, 34px)/1.2 var(--serif); margin: 18px 0 10px; letter-spacing: -0.01em; text-wrap: balance; }
 .tagline { font-size: 19px; margin: 0 auto 26px; max-width: 520px; color: var(--text); }
 .meta { color: var(--muted); font: 13.5px/1.6 var(--sans); margin-top: 16px; }
 .meta .link { font-weight: 600; }
@@ -69,12 +68,13 @@ h1 { font: 600 clamp(28px, 5vw, 36px)/1.2 var(--serif); margin: 18px 0 12px; let
 
 /* device mock */
 .showcase { display: flex; justify-content: center; padding: 20px 0 36px; }
-/* Colour e-reader: white body, even bezel on three sides, wide right grip with two page-turn buttons */
+/* Kobo Libra Colour to scale: body 144.6 x 161 mm, 7" 3:4 screen, ~9.4 mm bezel on three sides, ~28.5 mm grip.
+   At 400px wide that is 26px bezels and a 79px grip. */
 .device {
   position: relative; width: min(400px, 100%);
   background: linear-gradient(155deg, #fdfcf9 0%, #f1eee7 55%, #e6e2d9 100%);
   border: 1px solid #d2cdc2; border-radius: 16px 24px 24px 16px;
-  padding: 26px 78px 30px 26px;
+  padding: 26px 79px 26px 26px;
   box-shadow:
     0 34px 60px rgba(0, 0, 0, 0.5),
     inset 0 2px 0 #ffffff,
@@ -82,14 +82,14 @@ h1 { font: 600 clamp(28px, 5vw, 36px)/1.2 var(--serif); margin: 18px 0 12px; let
     inset 0 -8px 14px rgba(0, 0, 0, 0.07);
 }
 .device::before, .device::after {
-  content: ""; position: absolute; right: 31px; width: 15px; height: 66px; border-radius: 9px;
+  content: ""; position: absolute; right: 32px; width: 15px; height: 66px; border-radius: 9px;
   background: linear-gradient(90deg, #e2ded5, #f4f2ec 55%, #dedad1);
   box-shadow: 0 0 0 1px #cbc6bb, 0 2px 3px rgba(0, 0, 0, 0.12), inset 0 1px 0 #fff;
 }
-.device::before { top: 34%; }
-.device::after { top: calc(34% + 84px); }
+.device::before { top: calc(50% - 76px); }
+.device::after { top: calc(50% + 10px); }
 .screen {
-  position: relative; height: 430px; overflow: hidden; border-radius: 3px;
+  position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 3px;
   background: #f1f0eb; color: #161616; padding: 22px 20px;
   box-shadow: 0 0 0 1px #c6c1b6, inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -177,10 +177,10 @@ footer p { margin: 4px 0; }
   .features { grid-template-columns: 1fr; }
   .card { padding: 18px 16px; }
   .progress div { font-size: 10px; }
-  .screen { height: 400px; }
-  .device { padding: 18px 54px 22px 18px; border-radius: 12px 18px 18px 12px; }
-  .device::before, .device::after { right: 21px; width: 11px; height: 50px; }
-  .device::after { top: calc(34% + 64px); }
+  .device { padding: 22px 68px 22px 22px; border-radius: 12px 18px 18px 12px; }
+  .device::before, .device::after { right: 28px; width: 11px; height: 50px; }
+  .device::before { top: calc(50% - 58px); }
+  .device::after { top: calc(50% + 8px); }
   .codeline { flex-direction: column; align-items: flex-start; }
   .codeline code { width: 100%; }
 }
@@ -219,7 +219,7 @@ html[lang="my"] .pill, html[lang="my"] .progress div {
   font-family: var(--sans); text-transform: none; letter-spacing: 0; line-height: 1.6;
 }
 html[lang="my"] .progress div { font-size: 12.5px; }
-html[lang="my"] .meta, html[lang="my"] .for { font-family: var(--sans); letter-spacing: 0; }
+html[lang="my"] .meta { font-family: var(--sans); }
 html[lang="my"] .btn { line-height: 1.7; }
 html[lang="my"] .faq summary { line-height: 1.8; }
 .notice.tip { background: transparent; border: 1px dashed var(--line); color: var(--muted); margin: 0 0 16px; }
