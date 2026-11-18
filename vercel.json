@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "python3 tools/build_site.py",
+  "outputDirectory": "site",
+  "headers": [
+    {
+      "source": "/(manifest.json|files/(.*))",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    }
+  ]
+}
