@@ -34,10 +34,11 @@ RUN = re.compile("[က-႟ꧠ-꧿ꩠ-ꩿ]+")
 
 
 def load_base(path, tmp):
-    font = TTFont(path)
+    font = TTFont(path, recalcTimestamp=False)
     font.flavor = None
     font.save(tmp)
-    return TTFont(tmp), hb.Font(hb.Face(hb.Blob.from_file_path(tmp)))
+    # Keep the source timestamp so the same input gives the same font file.
+    return TTFont(tmp, recalcTimestamp=False), hb.Font(hb.Face(hb.Blob.from_file_path(tmp)))
 
 
 class Shaper:
@@ -86,7 +87,8 @@ def convert_dictionary(src, dst, shape, family):
                 parts = re.split(r"(<[^>]*>)", html)
                 html = "".join(p if p.startswith("<") else text(p) for p in parts)
                 data = gzip.compress(html.encode("utf-8"), 9, mtime=0)
-            zo.writestr(info.filename, data)
+            # Reuse the source entry's date so builds are reproducible.
+            zo.writestr(zipfile.ZipInfo(info.filename, info.date_time), data, zipfile.ZIP_DEFLATED)
     return runs
 
 
