@@ -80,9 +80,16 @@ function route() {
   window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
+window.addEventListener('popstate', route);
 window.addEventListener('beforeunload', (e) => { if (S.running) e.preventDefault(); });
 
-const goHome = () => { if (!S.running) location.hash = ''; };
+// Go back to the start page with a clean address (no trailing "#").
+const goHome = () => {
+  if (S.running) return;
+  history.pushState(null, '', location.pathname + location.search);
+  route();
+};
+document.querySelector('.brand').addEventListener('click', (e) => { e.preventDefault(); goHome(); });
 const go = (step) => { S.step = step; S.error = null; render(); window.scrollTo(0, 0); };
 
 // ---------- render ----------
@@ -103,7 +110,8 @@ function nav(back, next) {
 function startCard() {
   return h('section', { class: 'card' },
     h('h2', {}, t('startTitle')),
-    h('ol', { class: 'steps' }, h('li', {}, t('start0')), h('li', {}, t('start1')), h('li', {}, t('start2'))),
+    h('ol', { class: 'steps' }, h('li', {}, t('start1')), h('li', {}, t('start2'))),
+    h('p', { class: 'notice tip' }, h('b', {}, t('backupTitle')), ' ', t('backupBody')),
     h('label', { class: 'check' },
       h('input', { type: 'checkbox', checked: S.ack, onchange: (e) => { S.ack = e.target.checked; render(); } }),
       h('span', {}, t('ack'))),

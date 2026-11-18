@@ -222,3 +222,5 @@ html[lang="my"] .progress div { font-size: 12.5px; }
 html[lang="my"] .meta, html[lang="my"] .for { font-family: var(--sans); letter-spacing: 0; }
 html[lang="my"] .btn { line-height: 1.7; }
 html[lang="my"] .faq summary { line-height: 1.8; }
+.notice.tip { background: transparent; border: 1px dashed var(--line); color: var(--muted); margin: 0 0 16px; }
+.notice.tip b { color: var(--text); }
