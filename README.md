@@ -48,7 +48,7 @@ What was tested on the device:
 | Yes | Yes | No | Shows |
 | Yes | Yes | Yes | Shows, and list name shows `ဗမာ` |
 
-## Web installer: Ornagai Dictionary Kit for Kobo eReader
+## Web installer: Kobo English–Myanmar Dictionary Kit
 
 `site/` is a static website that installs, checks and removes the dictionary straight from the browser (Chrome or Edge on a computer). Other browsers get download links and manual steps. English is the default; Burmese is one click away.
 

@@ -3,7 +3,7 @@
 export const TEXT = {
   en: {
     lang: 'မြန်မာ',
-    unofficial: 'unofficial',
+    forLine: 'Dictionary from Ornagai · unofficial',
     tagline: 'Install the Ornagai English–Myanmar dictionary on your Kobo.',
     cta: 'Install or remove on Kobo',
     check: 'Check my Kobo',
@@ -100,7 +100,7 @@ export const TEXT = {
   // Burmese: formal written style (ပါသည်), short and plain.
   my: {
     lang: 'EN',
-    unofficial: 'တရားဝင် မဟုတ်ပါ',
+    forLine: 'Ornagai အဘိဓာန် · တရားဝင် မဟုတ်ပါ',
     tagline: 'Ornagai English–မြန်မာ အဘိဓာန်ကို Kobo တွင် Install လုပ်ပါ',
     cta: 'Kobo တွင် Install / Remove လုပ်ရန်',
     check: 'Kobo ကို စစ်ဆေးရန်',
