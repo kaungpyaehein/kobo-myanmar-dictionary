@@ -46,7 +46,7 @@ def main():
         files.append({"id": fid, "url": f"files/{name}", "size": os.path.getsize(path),
                       "sha256": sha256(path), "dest": dest})
     manifest = {
-        "name": "Kobo Myanmar Dictionary Kit",
+        "name": "Ornagai Dictionary Kit for Kobo eReader",
         "version": VERSION,
         "date": DATE,
         "words": count_words(os.path.join(DIST, FILES[0][1])),

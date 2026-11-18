@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kobo Myanmar Dictionary Kit</title>
-  <meta name="description" content="Install an English–Myanmar dictionary on your Kobo e-reader, with Burmese that shows correctly.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e3a53b'/%3E%3Cpath d='M14 18c7-3 13-2 18 2 5-4 11-5 18-2v28c-7-3-13-2-18 2-5-4-11-5-18-2z' fill='none' stroke='%231a1306' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M32 20v28' stroke='%231a1306' stroke-width='4'/%3E%3C/svg%3E">
+  <title>Ornagai Dictionary Kit for Kobo eReader</title>
+  <meta name="description" content="Install the Ornagai English–Myanmar dictionary on your Kobo eReader, with Burmese that shows correctly.">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600&family=Noto+Serif+Myanmar:wght@600;700&family=Noto+Serif:wght@600&display=swap" rel="stylesheet">
@@ -15,24 +15,23 @@
 <body>
   <header class="top">
     <a class="brand" href="#">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--accent)"/><path d="M14 18c7-3 13-2 18 2 5-4 11-5 18-2v28c-7-3-13-2-18 2-5-4-11-5-18-2z" fill="none" stroke="var(--accent-ink)" stroke-width="4" stroke-linejoin="round"/><path d="M32 20v28" stroke="var(--accent-ink)" stroke-width="4"/></svg>
-      <span>Kobo Myanmar Dictionary Kit</span>
+      <img src="icon.svg" alt="" width="26" height="26">
+      <span>Ornagai Dictionary Kit</span>
     </a>
     <button class="lang" id="lang" type="button">EN</button>
   </header>
 
   <main id="landing">
     <section class="hero">
-      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--accent)"/><path d="M14 18c7-3 13-2 18 2 5-4 11-5 18-2v28c-7-3-13-2-18 2-5-4-11-5-18-2z" fill="none" stroke="var(--accent-ink)" stroke-width="4" stroke-linejoin="round"/><path d="M32 20v28" stroke="var(--accent-ink)" stroke-width="4"/></svg>
-      <h1>Kobo Myanmar<br>Dictionary Kit</h1>
+      <img class="logo" src="icon.svg" alt="" width="72" height="72">
+      <h1>Ornagai Dictionary Kit</h1>
+      <p class="for">for Kobo eReader · <span data-i18n="unofficial"></span></p>
       <p class="tagline" data-i18n="tagline"></p>
-      <span class="badge" data-i18n="unofficial"></span>
-      <p class="intro" data-i18n="intro"></p>
       <a class="btn primary big" href="#kit">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span data-i18n="cta"></span>
       </a>
-      <p class="meta" id="version"></p>
+      <p class="meta"><span id="version"></span><span class="sep"> · </span><a class="link" href="https://www.ornagai.com" target="_blank" rel="noopener" data-i18n="moreOrnagai"></a></p>
     </section>
 
     <section class="showcase">
@@ -82,6 +81,7 @@
       <h2 data-i18n="creditsTitle"></h2>
       <p><span data-i18n="creditDict"></span> <a class="link" href="https://www.ornagai.com" target="_blank" rel="noopener">Ornagai</a></p>
       <p class="muted" data-i18n="creditDictNote"></p>
+      <p><a class="link" href="https://www.ornagai.com" target="_blank" rel="noopener" data-i18n="moreOrnagai"></a></p>
       <p><span data-i18n="creditFont"></span> <a class="link" href="https://fonts.google.com/noto/specimen/Noto+Sans+Myanmar" target="_blank" rel="noopener">Noto Sans Myanmar</a> <span data-i18n="creditFontNote"></span></p>
     </section>
   </main>
