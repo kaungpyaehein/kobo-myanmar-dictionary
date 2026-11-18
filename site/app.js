@@ -103,7 +103,7 @@ function nav(back, next) {
 function startCard() {
   return h('section', { class: 'card' },
     h('h2', {}, t('startTitle')),
-    h('ol', { class: 'steps' }, h('li', {}, t('start1')), h('li', {}, t('start2'))),
+    h('ol', { class: 'steps' }, h('li', {}, t('start0')), h('li', {}, t('start1')), h('li', {}, t('start2'))),
     h('label', { class: 'check' },
       h('input', { type: 'checkbox', checked: S.ack, onchange: (e) => { S.ack = e.target.checked; render(); } }),
       h('span', {}, t('ack'))),

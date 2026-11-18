@@ -3,7 +3,7 @@
 export const TEXT = {
   en: {
     lang: 'မြန်မာ',
-    forLine: 'Independent kit · not made by Kobo or Ornagai',
+    forLine: 'Beta · independent kit · not made by Kobo or Ornagai',
     tagline: 'Install the Ornagai English–Myanmar dictionary on your Kobo.',
     cta: 'Install or remove on Kobo',
     check: 'Check my Kobo',
@@ -41,9 +41,10 @@ export const TEXT = {
     s1: 'Start', s2: 'Connect', s3: 'Install', s4: 'Finish',
     back: 'Back', next: 'Continue', home: 'Home', again: 'Try again', done: 'Done',
     startTitle: 'Before you start',
+    start0: 'Back up your Kobo: copy the whole KOBOeReader drive to your computer.',
     start1: 'Charge your Kobo.',
     start2: 'Have a USB cable ready.',
-    ack: 'I understand this is not an official Kobo or Ornagai tool.',
+    ack: 'I understand this is a beta tool, not made by Kobo or Ornagai. Something could go wrong, such as damaged files on my Kobo.',
     connectTitle: 'Connect your Kobo',
     connect1: 'Plug in your Kobo and tap Connect on it.',
     connect2: 'Click the button, choose KOBOeReader, then Allow.',
@@ -100,7 +101,7 @@ export const TEXT = {
   // Burmese: formal written style (ပါသည်), short and plain.
   my: {
     lang: 'EN',
-    forLine: 'လွတ်လပ်သော Kit · Kobo သို့မဟုတ် Ornagai က ပြုလုပ်ထားခြင်း မဟုတ်ပါ',
+    forLine: 'Beta · လွတ်လပ်သော Kit · Kobo သို့မဟုတ် Ornagai က ပြုလုပ်ထားခြင်း မဟုတ်ပါ',
     tagline: 'Ornagai English–မြန်မာ အဘိဓာန်ကို Kobo တွင် Install လုပ်ပါ',
     cta: 'Kobo တွင် Install / Remove လုပ်ရန်',
     check: 'Kobo ကို စစ်ဆေးရန်',
@@ -138,9 +139,10 @@ export const TEXT = {
     s1: 'စတင်ရန်', s2: 'ချိတ်ဆက်ရန်', s3: 'Install', s4: 'ပြီးဆုံး',
     back: 'နောက်သို့', next: 'ရှေ့ဆက်ရန်', home: 'ပင်မစာမျက်နှာ', again: 'ထပ်ကြိုးစားရန်', done: 'ပြီးပါပြီ',
     startTitle: 'မစတင်မီ',
+    start0: 'Kobo ကို အရင် Backup လုပ်ပါ - KOBOeReader drive တစ်ခုလုံးကို ကွန်ပျူတာထဲ ကူးထားပါ။',
     start1: 'Kobo ကို အားသွင်းထားပါ။',
     start2: 'USB ကြိုး အသင့် ပြင်ထားပါ။',
-    ack: 'ဤ Tool သည် Kobo သို့မဟုတ် Ornagai ၏ တရားဝင် Tool မဟုတ်ကြောင်း နားလည်ပါသည်။',
+    ack: 'ဤ Tool သည် Beta ဖြစ်ပြီး Kobo သို့မဟုတ် Ornagai ၏ တရားဝင် Tool မဟုတ်ကြောင်း နားလည်ပါသည်။ Kobo ထဲရှိ ဖိုင်များ ပျက်စီးခြင်းကဲ့သို့ အမှားများ ဖြစ်နိုင်ပါသည်။',
     connectTitle: 'Kobo ကို ချိတ်ဆက်ပါ',
     connect1: 'Kobo ကို ကွန်ပျူတာနှင့် ချိတ်ပြီး Kobo ပေါ်ရှိ Connect ကို နှိပ်ပါ။',
     connect2: 'အောက်ပါ ခလုတ်ကို နှိပ်၍ KOBOeReader ကို ရွေးပြီး Allow ကို နှိပ်ပါ။',
