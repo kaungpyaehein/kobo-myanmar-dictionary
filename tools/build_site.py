@@ -5,8 +5,8 @@ Run after tools/convert.py. Usage: python3 tools/build_site.py
 """
 import gzip, hashlib, json, os, re, shutil, zipfile
 
-VERSION = "1.1"
-DATE = "2026-11-21"
+VERSION = "1.2"
+DATE = "2026-11-22"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, "dist")
 SITE = os.path.join(ROOT, "site")

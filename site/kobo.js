@@ -12,7 +12,9 @@ const STATE = `${KIT_DIR}/installed.json`;
 const BACKUP = `${KIT_DIR}/backup/Kobo eReader.conf`;
 export const OLD_DICT = '.kobo/custom-dict/dicthtml-en-mm.zip';
 export const OLD_FONTS = ['NotoSansMyanmarKobo-Regular.ttf', 'NotoSansMyanmarKoboBook-Regular.ttf', 'NotoSansMyanmarKoboBook-Bold.ttf',
-  'MyanmarSans-Regular.ttf', 'MyanmarSans-Bold.ttf', 'KPMyanmar-Regular.ttf']
+  'MyanmarSans-Regular.ttf', 'MyanmarSans-Bold.ttf', 'KPMyanmar-Regular.ttf',
+  // Big reading fonts from the first shared font pack (about 20 MB; too much font data stops the dictionary).
+  'ThitsarKobo-Regular.ttf', 'ThitsarKobo-Bold.ttf', 'PyidaungsuKobo-Regular.ttf', 'PyidaungsuKobo-Bold.ttf']
   .flatMap((n) => [`fonts/${n}`, `fonts/kobo/${n}`]);
 const SECTION = '[ApplicationPreferences]';
 const KEY = 'GeoBasedSystemFonts=';
@@ -213,18 +215,22 @@ export async function readDevice(root, manifest) {
   const firmware = parts[2] || '?';
   const prefix = serial.slice(0, 4);
   const tested = manifest.tested.some((t) => t.serialPrefix === prefix && t.firmware === firmware);
-  return { model: MODELS[prefix] || `Kobo (${prefix || '?'})`, firmware, tested, fonts: await countFiles(root, 'fonts', /\.(ttf|otf)$/i) };
+  return { model: MODELS[prefix] || `Kobo (${prefix || '?'})`, firmware, tested, ...await otherFonts(root, manifest) };
 }
 
-// Files in one folder (not sub-folders), without macOS "._" files.
-async function countFiles(root, path, pattern) {
-  const d = await dirAt(root, path.split('/'));
-  if (!d) return 0;
-  let n = 0;
+// Fonts in fonts/ that the Kit doesn't add or remove, without macOS "._" files.
+// Too much font data stops Burmese showing in the dictionary, so the size matters most.
+async function otherFonts(root, manifest) {
+  const d = await dirAt(root, ['fonts']);
+  const ours = new Set([...manifest.files.flatMap((f) => f.dest), ...OLD_FONTS]);
+  let fonts = 0, fontBytes = 0;
+  if (!d) return { fonts, fontBytes };
   for await (const [name, handle] of d.entries()) {
-    if (handle.kind === 'file' && !name.startsWith('._') && pattern.test(name)) n++;
+    if (handle.kind !== 'file' || name.startsWith('._') || !/\.(ttf|otf)$/i.test(name) || ours.has(`fonts/${name}`)) continue;
+    fonts++;
+    fontBytes += (await handle.getFile()).size;
   }
-  return n;
+  return { fonts, fontBytes };
 }
 
 // Lists everything the Kit (or an older hand-made setup) put on the Kobo.

@@ -157,20 +157,22 @@ const icon = (name) => {
   return svg;
 };
 
-// Too many extra fonts once stopped Burmese showing in the dictionary (173 fonts did, 15 didn't).
-const MANY_FONTS = 50;
+// Too much font data stops Burmese showing in the dictionary (40 MB and 67 MB did; the Kit's 6 MB doesn't).
+const MANY_FONT_MB = 10;
+const mb = (bytes) => (bytes / 1048576).toFixed(1);
 
 function deviceInfo(d) {
   const st = S.scan.state;
   const date = st?.installedAt ? new Date(st.installedAt).toLocaleDateString(lang === 'my' ? 'my-MM' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const row = (k, v, cls) => [h('dt', {}, t(k)), h('dd', { class: cls }, v)];
+  const tooMany = d.fontBytes > MANY_FONT_MB * 1048576;
   return h('div', { class: 'device-info' },
     h('dl', {},
       row('infoModel', d.model),
       row('infoFirmware', [num(d.firmware), ' ', h('span', { class: d.tested ? 'pill ok' : 'pill muted' }, t(d.tested ? 'tested' : 'notTested'))]),
       row('infoKit', st?.version ? t('infoKitVer', { v: num(st.version), date }) : t('infoNone')),
-      row('infoFonts', num(d.fonts), d.fonts > MANY_FONTS ? 'warn' : null)),
-    d.fonts > MANY_FONTS ? h('div', { class: 'notice warn' }, t('manyFonts')) : null,
+      row('infoFonts', t('infoFontsVal', { n: num(d.fonts), mb: num(mb(d.fontBytes)) }), tooMany ? 'warn' : null)),
+    tooMany ? h('div', { class: 'notice warn' }, t('manyFonts')) : null,
     h('button', { class: 'linkbtn', disabled: S.busy, onclick: chooseDrive }, t('chooseAgain')));
 }
 

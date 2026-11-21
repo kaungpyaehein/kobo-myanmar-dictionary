@@ -11,7 +11,7 @@ const notFound = () => Object.assign(new Error('not found'), { name: 'NotFoundEr
 
 class FakeFile {
   constructor(bytes = new Uint8Array()) { this.kind = 'file'; this.bytes = bytes; }
-  async getFile() { const b = this.bytes; return { arrayBuffer: async () => b.slice().buffer }; }
+  async getFile() { const b = this.bytes; return { size: b.length, arrayBuffer: async () => b.slice().buffer }; }
   async createWritable() {
     const chunks = [];
     return {
@@ -122,7 +122,7 @@ test('conf: remove restores a user line and drops a Kit-added line', () => {
 
 test('device: reads model and firmware, rejects non-Kobo folders', async () => {
   const m = await manifest();
-  assert.deepEqual(await readDevice(kobo(), m), { model: 'Kobo Libra Colour', firmware: '4.46.23852', tested: true, fonts: 0 });
+  assert.deepEqual(await readDevice(kobo(), m), { model: 'Kobo Libra Colour', firmware: '4.46.23852', tested: true, fonts: 0, fontBytes: 0 });
   await assert.rejects(readDevice(new FakeDir(), m), (e) => e instanceof KitError && e.code === 'notKobo');
 });
 
@@ -301,4 +301,32 @@ test('update from the old font names: old fonts and setting are replaced', async
   assert.equal(get(root, 'fonts/NotoSansMyanmarKoboBook-Regular.ttf'), undefined);
   assert.equal(dec(get(root, CONF).bytes), '[ApplicationPreferences]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Lao Looped, Noto Sans Myanmar Kobo Dict\n');
   assert.equal((await scan(root, m)).status, 'installed');
+});
+
+test('device: counts only other fonts, by size', async () => {
+  const m = await manifest();
+  const root = kobo();
+  put(root, 'fonts/Big.otf', 'x'.repeat(300));
+  put(root, 'fonts/._Big.otf', 'apple');
+  put(root, 'fonts/NotoSansMyanmarKoboDict-Regular.ttf', 'ours');
+  put(root, 'fonts/ThitsarKobo-Regular.ttf', 'old pack, removed on install');
+  const d = await readDevice(root, m);
+  assert.equal(d.fonts, 1);
+  assert.equal(d.fontBytes, 300);
+});
+
+test('install removes the big fonts from the first shared font pack', async () => {
+  const m = await manifest();
+  const root = kobo();
+  for (const n of ['ThitsarKobo-Regular.ttf', 'ThitsarKobo-Bold.ttf', 'PyidaungsuKobo-Regular.ttf', 'NotoSansMyanmarKoboBook-Bold.ttf']) {
+    put(root, `fonts/${n}`, 'big');
+    put(root, `fonts/._${n}`, 'apple');
+  }
+  put(root, 'fonts/Mine.ttf', 'keep me');
+  await install(root, m, load, quiet);
+  for (const n of ['ThitsarKobo-Regular.ttf', 'ThitsarKobo-Bold.ttf', 'PyidaungsuKobo-Regular.ttf', 'NotoSansMyanmarKoboBook-Bold.ttf']) {
+    assert.equal(get(root, `fonts/${n}`), undefined, n);
+    assert.equal(get(root, `fonts/._${n}`), undefined, n);
+  }
+  assert.equal(dec(get(root, 'fonts/Mine.ttf').bytes), 'keep me');
 });
