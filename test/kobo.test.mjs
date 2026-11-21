@@ -67,6 +67,8 @@ function get(root, path) {
 
 const DICT = enc('dictionary v1');
 const FONT = enc('font v1');
+const BOOK_R = enc('book regular v1');
+const BOOK_B = enc('book bold v1');
 const BASE_CONF = '[ApplicationPreferences]\nCurrentLocale=en\nEarliestChangeLog=4.46.23852\n\n[PowerOptions]\nAutoOffMinutes=60\n';
 
 async function manifest() {
@@ -74,13 +76,18 @@ async function manifest() {
     version: '1.0',
     files: [
       { id: 'dictionary', url: 'files/d.zip', size: DICT.length, sha256: await sha256(DICT), dest: ['.kobo/custom-dict/dicthtml-en-my.zip'] },
-      { id: 'font', url: 'files/f.ttf', size: FONT.length, sha256: await sha256(FONT), dest: ['fonts/NotoSansMyanmarKobo-Regular.ttf', 'fonts/kobo/NotoSansMyanmarKobo-Regular.ttf'] },
+      { id: 'font', url: 'files/f.ttf', size: FONT.length, sha256: await sha256(FONT), dest: ['fonts/NotoSansMyanmarKoboDict-Regular.ttf', 'fonts/kobo/NotoSansMyanmarKoboDict-Regular.ttf'] },
+      { id: 'readingFont', url: 'files/br.ttf', size: BOOK_R.length, sha256: await sha256(BOOK_R), dest: [BOOK_R_PATH], optional: true, family: 'Noto Sans Myanmar Kobo Reader' },
+      { id: 'readingFont', url: 'files/bb.ttf', size: BOOK_B.length, sha256: await sha256(BOOK_B), dest: [BOOK_B_PATH], optional: true, family: 'Thitsar Kobo Reader' },
     ],
     tested: [{ serialPrefix: 'N428', firmware: '4.46.23852' }],
   };
 }
 
-const load = async (f) => (f.id === 'dictionary' ? DICT : FONT);
+const BOOK_R_PATH = 'fonts/NotoSansMyanmarKoboReader-Regular.ttf';
+const BOOK_B_PATH = 'fonts/ThitsarKoboReader-Regular.ttf';
+const BYTES = { 'files/d.zip': DICT, 'files/f.ttf': FONT, 'files/br.ttf': BOOK_R, 'files/bb.ttf': BOOK_B };
+const load = async (f) => BYTES[f.url];
 const quiet = () => {};
 
 function kobo(conf = BASE_CONF) {
@@ -93,7 +100,7 @@ function kobo(conf = BASE_CONF) {
 test('conf: adds tested line when missing, keeps other sections', () => {
   const { text, added } = confAdd(BASE_CONF);
   assert.equal(added, 'line');
-  assert.match(text, /^\[ApplicationPreferences\]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Lao Looped, Noto Sans Myanmar Kobo\n/);
+  assert.match(text, /^\[ApplicationPreferences\]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Lao Looped, Noto Sans Myanmar Kobo Dict\n/);
   assert.match(text, /\[PowerOptions\]\nAutoOffMinutes=60\n$/);
 });
 
@@ -101,12 +108,12 @@ test('conf: appends to existing line once, keeps CRLF', () => {
   const crlf = '[ApplicationPreferences]\r\nGeoBasedSystemFonts=Noto Sans Thai Looped\r\n';
   const a = confAdd(crlf);
   assert.equal(a.added, 'family');
-  assert.equal(a.text, '[ApplicationPreferences]\r\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Myanmar Kobo\r\n');
+  assert.equal(a.text, '[ApplicationPreferences]\r\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Myanmar Kobo Dict\r\n');
   assert.equal(confAdd(a.text).added, 'none');
 });
 
 test('conf: remove restores a user line and drops a Kit-added line', () => {
-  const user = '[ApplicationPreferences]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Myanmar Sans, Noto Sans Myanmar Kobo\n';
+  const user = '[ApplicationPreferences]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Myanmar Sans, Noto Sans Myanmar Kobo Dict\n';
   assert.equal(confRemove(user, false).text, '[ApplicationPreferences]\nGeoBasedSystemFonts=Noto Sans Thai Looped\n');
   const added = confAdd(BASE_CONF).text;
   assert.equal(confRemove(added, true).text, BASE_CONF);
@@ -115,7 +122,7 @@ test('conf: remove restores a user line and drops a Kit-added line', () => {
 
 test('device: reads model and firmware, rejects non-Kobo folders', async () => {
   const m = await manifest();
-  assert.deepEqual(await readDevice(kobo(), m), { model: 'Kobo Libra Colour', firmware: '4.46.23852', tested: true });
+  assert.deepEqual(await readDevice(kobo(), m), { model: 'Kobo Libra Colour', firmware: '4.46.23852', tested: true, fonts: 0 });
   await assert.rejects(readDevice(new FakeDir(), m), (e) => e instanceof KitError && e.code === 'notKobo');
 });
 
@@ -125,7 +132,7 @@ test('install on a fresh Kobo, then scan says installed', async () => {
   assert.equal((await scan(root, m)).status, 'none');
   await install(root, m, load, quiet);
   assert.equal(dec(get(root, '.kobo/custom-dict/dicthtml-en-my.zip').bytes), 'dictionary v1');
-  assert.equal(dec(get(root, 'fonts/kobo/NotoSansMyanmarKobo-Regular.ttf').bytes), 'font v1');
+  assert.equal(dec(get(root, 'fonts/kobo/NotoSansMyanmarKoboDict-Regular.ttf').bytes), 'font v1');
   assert.ok(confFamilies(dec(get(root, CONF).bytes)).includes(FAMILY));
   assert.equal(dec(get(root, `${KIT_DIR}/backup/Kobo eReader.conf`).bytes), BASE_CONF);
   assert.equal((await scan(root, m)).status, 'installed');
@@ -149,8 +156,8 @@ test('install then remove returns the Kobo to how it was', async () => {
   const s = await scan(root, m);
   await remove(root, s.items, quiet);
   assert.equal(dec(get(root, CONF).bytes), BASE_CONF);
-  assert.equal(get(root, 'fonts/NotoSansMyanmarKobo-Regular.ttf'), undefined);
-  assert.equal(get(root, 'fonts/kobo/NotoSansMyanmarKobo-Regular.ttf'), undefined);
+  assert.equal(get(root, 'fonts/NotoSansMyanmarKoboDict-Regular.ttf'), undefined);
+  assert.equal(get(root, 'fonts/kobo/NotoSansMyanmarKoboDict-Regular.ttf'), undefined);
   assert.equal(get(root, '.kobo/custom-dict/dicthtml-en-my.zip'), undefined);
   assert.equal(get(root, KIT_DIR), undefined);
   assert.equal(dec(get(root, 'fonts/kobo/Other.ttf').bytes), 'keep me');
@@ -160,7 +167,7 @@ test('install then remove returns the Kobo to how it was', async () => {
 test('a damaged download changes nothing on the Kobo', async () => {
   const m = await manifest();
   const root = kobo();
-  const bad = async (f) => (f.id === 'font' ? enc('broken') : DICT);
+  const bad = async (f) => (f.id === 'font' ? enc('broken') : BYTES[f.url]);
   await assert.rejects(install(root, m, bad, quiet), (e) => e.code === 'badDownload');
   assert.equal(get(root, '.kobo/custom-dict'), undefined);
   assert.equal(dec(get(root, CONF).bytes), BASE_CONF);
@@ -198,9 +205,9 @@ test('missing settings file: files install, setting is skipped', async () => {
 test('removes macOS ._ files next to written files', async () => {
   const m = await manifest();
   const root = kobo();
-  put(root, 'fonts/._NotoSansMyanmarKobo-Regular.ttf', 'apple');
+  put(root, 'fonts/._NotoSansMyanmarKoboDict-Regular.ttf', 'apple');
   await install(root, m, load, quiet);
-  assert.equal(get(root, 'fonts/._NotoSansMyanmarKobo-Regular.ttf'), undefined);
+  assert.equal(get(root, 'fonts/._NotoSansMyanmarKoboDict-Regular.ttf'), undefined);
 });
 
 test('remove clears the Kit folder even when a recursive delete leaves folders', async () => {
@@ -235,6 +242,63 @@ test('a Kit folder that cannot be deleted is skipped, not an error', async () =>
   const steps = [];
   await remove(root, (await scan(root, m)).items, (id, st) => steps.push(`${id}:${st}`));
   assert.ok(steps.includes(`del:${KIT_DIR}:skip`));
-  assert.equal(get(root, 'fonts/NotoSansMyanmarKobo-Regular.ttf'), undefined);
+  assert.equal(get(root, 'fonts/NotoSansMyanmarKoboDict-Regular.ttf'), undefined);
   assert.equal((await scan(root, m)).status, 'none');
+});
+
+test('book fonts install by default and are removed with the rest', async () => {
+  const m = await manifest();
+  const root = kobo();
+  await install(root, m, load, quiet);
+  assert.equal(dec(get(root, BOOK_R_PATH).bytes), 'book regular v1');
+  assert.equal(dec(get(root, BOOK_B_PATH).bytes), 'book bold v1');
+  const s = await scan(root, m);
+  assert.equal(s.status, 'installed');
+  await remove(root, s.items, quiet);
+  assert.equal(get(root, BOOK_R_PATH), undefined);
+  assert.equal(get(root, BOOK_B_PATH), undefined);
+  assert.equal((await scan(root, m)).status, 'none');
+});
+
+test('book fonts can be skipped; the Kit still counts as installed', async () => {
+  const m = await manifest();
+  const root = kobo();
+  const loaded = [];
+  await install(root, m, async (f) => { loaded.push(f.url); return load(f); }, quiet, { reading: [] });
+  assert.ok(!loaded.includes('files/br.ttf'));
+  assert.equal(get(root, BOOK_R_PATH), undefined);
+  assert.equal((await scan(root, m)).status, 'installed');
+});
+
+test('an old book font shows as an update', async () => {
+  const m = await manifest();
+  const root = kobo();
+  await install(root, m, load, quiet);
+  put(root, BOOK_R_PATH, 'book regular v0');
+  assert.equal((await scan(root, m)).status, 'update');
+});
+
+test('pick some reading fonts: only those are added', async () => {
+  const m = await manifest();
+  const root = kobo();
+  await install(root, m, load, quiet, { reading: ['Thitsar Kobo Reader'] });
+  assert.equal(get(root, BOOK_R_PATH), undefined);
+  assert.equal(dec(get(root, BOOK_B_PATH).bytes), 'book bold v1');
+});
+
+test('update from the old font names: old fonts and setting are replaced', async () => {
+  const m = await manifest();
+  const root = kobo('[ApplicationPreferences]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Lao Looped, Noto Sans Myanmar Kobo\n');
+  put(root, 'fonts/NotoSansMyanmarKobo-Regular.ttf', 'old dict font');
+  put(root, 'fonts/kobo/NotoSansMyanmarKobo-Regular.ttf', 'old dict font');
+  put(root, 'fonts/NotoSansMyanmarKoboBook-Regular.ttf', 'old book font');
+  put(root, '.kobo/custom-dict/dicthtml-en-my.zip', 'old dictionary');
+  put(root, `${KIT_DIR}/installed.json`, JSON.stringify({ files: { '.kobo/custom-dict/dicthtml-en-my.zip': await sha256(enc('old dictionary')) } }));
+  assert.equal((await scan(root, m)).status, 'update');
+  await install(root, m, load, quiet);
+  assert.equal(get(root, 'fonts/NotoSansMyanmarKobo-Regular.ttf'), undefined);
+  assert.equal(get(root, 'fonts/kobo/NotoSansMyanmarKobo-Regular.ttf'), undefined);
+  assert.equal(get(root, 'fonts/NotoSansMyanmarKoboBook-Regular.ttf'), undefined);
+  assert.equal(dec(get(root, CONF).bytes), '[ApplicationPreferences]\nGeoBasedSystemFonts=Noto Sans Thai Looped, Noto Sans Lao Looped, Noto Sans Myanmar Kobo Dict\n');
+  assert.equal((await scan(root, m)).status, 'installed');
 });

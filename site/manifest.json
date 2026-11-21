@@ -1,27 +1,82 @@
 {
-  "name": "Kobo English–Myanmar Dictionary Kit",
-  "version": "1.0",
-  "date": "2026-11-18",
+  "name": "Kobo Myanmar Dictionary & Font Installer",
+  "version": "1.1",
+  "date": "2026-11-21",
   "words": 111232,
   "files": [
     {
       "id": "dictionary",
       "url": "files/dicthtml-en-my.zip",
-      "size": 14297903,
-      "sha256": "7aa5cc03cb16b0b9627ac1bfea0dd5059a43f9efb836b3ef8df9211649f9ba8c",
+      "size": 14373214,
+      "sha256": "da3ff8ecae225167b6cb83673e2f986cb911e5288efa6d20dc45c211ec5f544e",
       "dest": [
         ".kobo/custom-dict/dicthtml-en-my.zip"
       ]
     },
     {
       "id": "font",
-      "url": "files/NotoSansMyanmarKobo-Regular.ttf",
-      "size": 217840,
-      "sha256": "85b47d35cd7cc6d7fce4a2eeb49d416210d273b3bed7b7db2f248aa4563123c0",
+      "url": "files/NotoSansMyanmarKoboDict-Regular.ttf",
+      "size": 217864,
+      "sha256": "426e6215fec155fc56f1cb339ab861cebc0d74f7defd3da42b46d8f424bf8f70",
       "dest": [
-        "fonts/NotoSansMyanmarKobo-Regular.ttf",
-        "fonts/kobo/NotoSansMyanmarKobo-Regular.ttf"
+        "fonts/NotoSansMyanmarKoboDict-Regular.ttf",
+        "fonts/kobo/NotoSansMyanmarKoboDict-Regular.ttf"
       ]
+    },
+    {
+      "id": "readingFont",
+      "url": "files/NotoSansMyanmarKoboReader-Regular.ttf",
+      "size": 1161636,
+      "sha256": "7fb508d1ac08ebd4a8130950e2dd29df29b0c1ac6e1f0f11cfe9d384fc417499",
+      "dest": [
+        "fonts/NotoSansMyanmarKoboReader-Regular.ttf"
+      ],
+      "optional": true,
+      "family": "Noto Sans Myanmar Kobo Reader"
+    },
+    {
+      "id": "readingFont",
+      "url": "files/NotoSansMyanmarKoboReader-Bold.ttf",
+      "size": 1161900,
+      "sha256": "b8c2cc7c7efa502430f3be097fb4fbb389cd9f806043b27605b094c59480b3b7",
+      "dest": [
+        "fonts/NotoSansMyanmarKoboReader-Bold.ttf"
+      ],
+      "optional": true,
+      "family": "Noto Sans Myanmar Kobo Reader"
+    },
+    {
+      "id": "readingFont",
+      "url": "files/ThitsarKoboReader-Regular.ttf",
+      "size": 1148556,
+      "sha256": "4b16f2b186ce15a7d319cf13fe59c1c7de82c03fd062fffa268f89792d2c7e59",
+      "dest": [
+        "fonts/ThitsarKoboReader-Regular.ttf"
+      ],
+      "optional": true,
+      "family": "Thitsar Kobo Reader"
+    },
+    {
+      "id": "readingFont",
+      "url": "files/ThitsarKoboReader-Bold.ttf",
+      "size": 1148292,
+      "sha256": "5509008cc575b4e101634916ee87651cca2c001a12c0be13881ac59556cb901c",
+      "dest": [
+        "fonts/ThitsarKoboReader-Bold.ttf"
+      ],
+      "optional": true,
+      "family": "Thitsar Kobo Reader"
+    },
+    {
+      "id": "readingFont",
+      "url": "files/PyidaungsuKoboReader-Regular.ttf",
+      "size": 1674420,
+      "sha256": "72b700b20a3781e7c2bd337b8a350a8f61fee2bcc8cc47366a01816e41cf71b5",
+      "dest": [
+        "fonts/PyidaungsuKoboReader-Regular.ttf"
+      ],
+      "optional": true,
+      "family": "Pyidaungsu Kobo Reader"
     }
   ],
   "tested": [

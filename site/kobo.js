@@ -1,16 +1,18 @@
-// Device logic for Kobo Myanmar Dictionary Kit.
+// Device logic for the Kobo Myanmar Dictionary & Font Installer.
 // Everything works on a FileSystemDirectoryHandle for the KOBOeReader drive,
 // or on any object with the same methods (the tests use an in-memory fake).
 
-export const FAMILY = 'Noto Sans Myanmar Kobo';
-export const OLD_FAMILIES = ['Myanmar Sans', 'KP Myanmar'];
+// Dictionary font. It only works inside the dictionary popup.
+export const FAMILY = 'Noto Sans Myanmar Kobo Dict';
+export const OLD_FAMILIES = ['Noto Sans Myanmar Kobo', 'Myanmar Sans', 'KP Myanmar'];
 export const GEO_DEFAULT = ['Noto Sans Thai Looped', 'Noto Sans Lao Looped'];
 export const CONF = '.kobo/Kobo/Kobo eReader.conf';
 export const KIT_DIR = '.adds/kobo-myanmar-kit';
 const STATE = `${KIT_DIR}/installed.json`;
 const BACKUP = `${KIT_DIR}/backup/Kobo eReader.conf`;
 export const OLD_DICT = '.kobo/custom-dict/dicthtml-en-mm.zip';
-export const OLD_FONTS = ['MyanmarSans-Regular.ttf', 'MyanmarSans-Bold.ttf', 'KPMyanmar-Regular.ttf']
+export const OLD_FONTS = ['NotoSansMyanmarKobo-Regular.ttf', 'NotoSansMyanmarKoboBook-Regular.ttf', 'NotoSansMyanmarKoboBook-Bold.ttf',
+  'MyanmarSans-Regular.ttf', 'MyanmarSans-Bold.ttf', 'KPMyanmar-Regular.ttf']
   .flatMap((n) => [`fonts/${n}`, `fonts/kobo/${n}`]);
 const SECTION = '[ApplicationPreferences]';
 const KEY = 'GeoBasedSystemFonts=';
@@ -164,13 +166,15 @@ export function confFamilies(text) {
   return c.key < 0 ? [] : familiesOf(c.lines[c.key]);
 }
 
-// Adds our font to GeoBasedSystemFonts. If the line is missing, adds the tested line.
+// Adds our font to GeoBasedSystemFonts (dropping our older font names).
+// If the line is missing, adds the tested line.
 export function confAdd(text) {
   const c = parseConf(text);
   if (c.key >= 0) {
-    const f = familiesOf(c.lines[c.key]);
-    if (f.includes(FAMILY)) return { text, added: 'none' };
-    c.lines[c.key] = KEY + [...f, FAMILY].join(', ');
+    const all = familiesOf(c.lines[c.key]);
+    const f = all.filter((x) => !OLD_FAMILIES.includes(x));
+    if (f.includes(FAMILY) && f.length === all.length) return { text, added: 'none' };
+    c.lines[c.key] = KEY + (f.includes(FAMILY) ? f : [...f, FAMILY]).join(', ');
     return { text: c.lines.join(c.eol), added: 'family' };
   }
   const line = KEY + [...GEO_DEFAULT, FAMILY].join(', ');
@@ -209,7 +213,18 @@ export async function readDevice(root, manifest) {
   const firmware = parts[2] || '?';
   const prefix = serial.slice(0, 4);
   const tested = manifest.tested.some((t) => t.serialPrefix === prefix && t.firmware === firmware);
-  return { model: MODELS[prefix] || `Kobo (${prefix || '?'})`, firmware, tested };
+  return { model: MODELS[prefix] || `Kobo (${prefix || '?'})`, firmware, tested, fonts: await countFiles(root, 'fonts', /\.(ttf|otf)$/i) };
+}
+
+// Files in one folder (not sub-folders), without macOS "._" files.
+async function countFiles(root, path, pattern) {
+  const d = await dirAt(root, path.split('/'));
+  if (!d) return 0;
+  let n = 0;
+  for await (const [name, handle] of d.entries()) {
+    if (handle.kind === 'file' && !name.startsWith('._') && pattern.test(name)) n++;
+  }
+  return n;
 }
 
 // Lists everything the Kit (or an older hand-made setup) put on the Kobo.
@@ -222,7 +237,7 @@ export async function scan(root, manifest) {
       const b = await readBytes(root, dest);
       if (!b) continue;
       const h = await sha256(b);
-      const kit = f.id === 'font' || h === f.sha256 || state?.files?.[dest] === h;
+      const kit = f.id === 'font' || f.id === 'readingFont' || h === f.sha256 || state?.files?.[dest] === h;
       items.push({ type: 'file', id: kit ? f.id : 'otherDict', path: dest, current: h === f.sha256, kit, checked: kit });
     }
   }
@@ -245,31 +260,38 @@ export async function scan(root, manifest) {
 }
 
 function statusOf(items, manifest) {
-  const need = manifest.files.flatMap((f) => f.dest);
   const ours = (p) => items.find((i) => i.path === p && i.kit);
+  // Optional files only count when they are on the Kobo.
+  const need = manifest.files.filter((f) => !f.optional || f.dest.some(ours)).flatMap((f) => f.dest);
   const confOk = items.some((i) => i.id === 'conf' && i.current);
   if (need.every((p) => ours(p)) && confOk) {
     return need.every((p) => ours(p).current) ? 'installed' : 'update';
   }
   const kitItems = items.filter((i) => i.kit && i.id !== 'kit');
   if (!kitItems.length) return 'none';
-  const legacyOnly = kitItems.every((i) => i.id === 'oldFont' || (i.id === 'conf' && !i.current));
-  return legacyOnly ? 'update' : 'partial';
+  // Something of ours is from an older version: Update. Otherwise parts are just missing.
+  return kitItems.some((i) => !i.current) ? 'update' : 'partial';
 }
 
 // ---------- install ----------
 
 // load(file, onProgress) returns the file's bytes. step(id, status, info) reports progress.
-export async function install(root, manifest, load, step) {
+// Reading-font families in the manifest.
+export const readingFamilies = (manifest) => [...new Set(manifest.files.filter((f) => f.optional).map((f) => f.family))];
+
+// reading: the reading-font families to add (default all). Ones left out but already on the Kobo stay.
+// Fonts with our older names are removed, so the font menu only shows the current ones.
+export async function install(root, manifest, load, step, { reading = readingFamilies(manifest) } = {}) {
+  const files = manifest.files.filter((f) => !f.optional || reading.includes(f.family));
   // Download and check everything first, so a failed download changes nothing on the Kobo.
   step('download', 'run', 0);
-  const total = manifest.files.reduce((n, f) => n + f.size, 0);
+  const total = files.reduce((n, f) => n + f.size, 0);
   let done = 0;
-  const data = {};
-  for (const f of manifest.files) {
+  const data = new Map();
+  for (const f of files) {
     const bytes = await load(f, (n) => step('download', 'run', Math.round(((done + n) / total) * 100)));
     if ((await sha256(bytes)) !== f.sha256) throw new KitError('badDownload', f.url);
-    data[f.id] = bytes;
+    data.set(f, bytes);
     done += f.size;
   }
   step('download', 'done', 100);
@@ -286,14 +308,14 @@ export async function install(root, manifest, load, step) {
   const record = {
     version: manifest.version,
     installedAt: new Date().toISOString(),
-    files: {},
+    files: { ...prev?.files },
     addedLine: Boolean(prev?.addedLine),
   };
-  for (const f of manifest.files) {
+  for (const f of files) {
     for (const dest of f.dest) {
       const id = `copy:${dest}`;
       step(id, 'run');
-      await writeBytes(root, dest, data[f.id]);
+      await writeBytes(root, dest, data.get(f));
       await removeAppleDouble(root, dest);
       const back = await readBytes(root, dest);
       if (!back || (await sha256(back)) !== f.sha256) throw new KitError('verify', dest);
@@ -314,6 +336,9 @@ export async function install(root, manifest, load, step) {
   }
 
   step('record', 'run');
+  for (const p of OLD_FONTS) {
+    if (await removeAt(root, p)) await removeAppleDouble(root, p);
+  }
   await writeText(root, STATE, JSON.stringify(record, null, 2));
   await removeAppleDouble(root, STATE);
   step('record', 'done');

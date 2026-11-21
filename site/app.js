@@ -36,7 +36,7 @@ let manifest = null;
 const fresh = () => ({
   step: 0, ack: false, root: null, device: null, scan: null, busy: false,
   untestedOk: false, mode: null, steps: [], running: false, error: null, finished: false, confMissing: false,
-  groupOf: {},
+  groupOf: {}, reading: null,
 });
 let S = fresh();
 
@@ -96,6 +96,7 @@ const go = (step) => { S.step = step; S.error = null; render(); window.scrollTo(
 
 function render() {
   if (wizard.hidden) return;
+  if (!supported()) { wizard.replaceChildren(browserCard()); return; }
   const labels = [t('s1'), t('s2'), t('s3'), t('s4')];
   const bar = h('div', { class: 'progress' },
     labels.map((l, i) => h('div', { class: i === S.step ? 'active' : i < S.step ? 'done' : '' }, `${num(`0${i + 1}`)} ${l}`)));
@@ -156,8 +157,24 @@ const icon = (name) => {
   return svg;
 };
 
+// Too many extra fonts once stopped Burmese showing in the dictionary (173 fonts did, 15 didn't).
+const MANY_FONTS = 50;
+
+function deviceInfo(d) {
+  const st = S.scan.state;
+  const date = st?.installedAt ? new Date(st.installedAt).toLocaleDateString(lang === 'my' ? 'my-MM' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const row = (k, v, cls) => [h('dt', {}, t(k)), h('dd', { class: cls }, v)];
+  return h('div', { class: 'device-info' },
+    h('dl', {},
+      row('infoModel', d.model),
+      row('infoFirmware', [num(d.firmware), ' ', h('span', { class: d.tested ? 'pill ok' : 'pill muted' }, t(d.tested ? 'tested' : 'notTested'))]),
+      row('infoKit', st?.version ? t('infoKitVer', { v: num(st.version), date }) : t('infoNone')),
+      row('infoFonts', num(d.fonts), d.fonts > MANY_FONTS ? 'warn' : null)),
+    d.fonts > MANY_FONTS ? h('div', { class: 'notice warn' }, t('manyFonts')) : null,
+    h('button', { class: 'linkbtn', disabled: S.busy, onclick: chooseDrive }, t('chooseAgain')));
+}
+
 function connectCard() {
-  if (!('showDirectoryPicker' in window)) return manualCard();
   const d = S.device;
   if (!d || !S.scan) {
     return h('section', { class: 'card' },
@@ -181,10 +198,10 @@ function connectCard() {
       h('div', { class: 'status-icon' }, icon(look[1])),
       h('h2', {}, t(`hero_${status}`)),
       h('p', {}, t(`hero_${status}_sub`))),
-    h('p', { class: 'device-line' },
-      d.model,
-      h('button', { class: 'linkbtn', disabled: S.busy, onclick: chooseDrive }, t('chooseAgain'))),
+    deviceInfo(d),
     S.error ? h('div', { class: 'notice err' }, S.error) : null);
+
+  card.append(readingOptions());
 
   if (!d.tested) {
     card.append(h('div', { class: 'notice warn' }, t('untested')),
@@ -206,6 +223,26 @@ function connectCard() {
 
   card.append(nav(h('button', { class: 'btn', onclick: () => go(0) }, t('back'))));
   return card;
+}
+
+// Reading fonts the user picked (all by default).
+const chosenReading = () => S.reading ?? kobo.readingFamilies(manifest);
+
+function readingOptions() {
+  const all = kobo.readingFamilies(manifest);
+  if (!all.length) return null;
+  const toggle = (fam, on) => {
+    const set = new Set(chosenReading());
+    if (on) set.add(fam); else set.delete(fam);
+    S.reading = all.filter((f) => set.has(f));
+    render();
+  };
+  return h('div', { class: 'option' },
+    h('p', { class: 'option-title' }, t('readingTitle')),
+    all.map((fam) => h('label', { class: 'check' },
+      h('input', { type: 'checkbox', checked: chosenReading().includes(fam), onchange: (e) => toggle(fam, e.target.checked) }),
+      h('span', {}, fam))),
+    h('p', { class: 'muted' }, t('readingNote')));
 }
 
 // ---------- install / remove ----------
@@ -265,16 +302,21 @@ async function run(task) {
 }
 
 function runInstall() {
-  const members = manifest.files.flatMap((f) => f.dest.map((d) => [`copy:${d}`, f.id === 'dictionary' ? 'dict' : 'font']));
-  setSteps(['download', 'backup', 'dict', 'font', 'setting', 'record'].map((g) => [g, `step_${g}`]), members);
+  const reading = chosenReading();
+  const group = { dictionary: 'dict', font: 'font', readingFont: 'reading' };
+  const files = manifest.files.filter((f) => !f.optional || reading.includes(f.family));
+  const members = files.flatMap((f) => f.dest.map((d) => [`copy:${d}`, group[f.id]]));
+  const groups = ['download', 'backup', 'dict', 'font', 'reading', 'setting', 'record']
+    .filter((g) => g !== 'reading' || reading.length);
+  setSteps(groups.map((g) => [g, `step_${g}`]), members);
   return run(async () => {
-    const r = await kobo.install(S.root, manifest, load, onStep);
+    const r = await kobo.install(S.root, manifest, load, onStep, { reading });
     S.confMissing = r.confMissing;
   });
 }
 
 function runRemove() {
-  const group = { dictionary: 'dict', otherDict: 'dict', oldDict: 'dict', font: 'font', oldFont: 'font', conf: 'conf', kit: 'kit' };
+  const group = { dictionary: 'dict', otherDict: 'dict', oldDict: 'dict', font: 'font', readingFont: 'font', oldFont: 'font', conf: 'conf', kit: 'kit' };
   const members = S.scan.items.filter((i) => i.checked).map((i) => [`del:${i.path}`, group[i.id]]);
   const groups = ['dict', 'font', 'conf', 'kit'].filter((g) => members.some((m) => m[1] === g));
   setSteps(groups.map((g) => [g, `rm_${g}`]), members);
@@ -324,7 +366,8 @@ function finishCard() {
   const install = S.mode === 'install';
   const card = h('section', { class: 'card' },
     h('h2', {}, t(install ? 'finishInstall' : 'finishRemove')),
-    h('ol', { class: 'steps' }, h('li', {}, t('fin1')), h('li', {}, t('fin2')), install ? h('li', {}, t('fin3')) : null));
+    h('ol', { class: 'steps' }, h('li', {}, t('fin1')), h('li', {}, t('fin2')),
+      install ? h('li', {}, t('fin3')) : null, install && chosenReading().length ? h('li', {}, t('fin4')) : null));
   if (install) {
     const mock = document.getElementById('popup-mock').cloneNode(true);
     mock.removeAttribute('id');
@@ -334,26 +377,21 @@ function finishCard() {
   return card;
 }
 
-// ---------- manual (other browsers) ----------
+// ---------- other browsers ----------
 
-function manualCard() {
-  const [dict, font] = ['dictionary', 'font'].map((id) => manifest.files.find((f) => f.id === id));
-  const line = `GeoBasedSystemFonts=${[...kobo.GEO_DEFAULT, kobo.FAMILY].join(', ')}`;
-  const copyBtn = h('button', { class: 'btn', onclick: async (e) => {
-    try { await navigator.clipboard.writeText(line); e.target.textContent = t('copied'); } catch { /* clipboard blocked */ }
-  } }, t('copy'));
+// The kit needs the File System Access API (Chrome, Edge and other Chromium browsers on a computer).
+const supported = () => 'showDirectoryPicker' in window;
+
+function browserCard() {
+  const copyBtn = h('button', { class: 'btn primary', onclick: async (e) => {
+    try { await navigator.clipboard.writeText(location.href.split('#')[0]); e.target.textContent = t('copied'); } catch { /* clipboard blocked */ }
+  } }, t('copyLink'));
   return h('section', { class: 'card' },
-    h('h2', {}, t('manualTitle')),
-    h('p', { class: 'sub' }, t('manualIntro')),
-    h('ol', { class: 'steps' },
-      h('li', {}, t('man1', { path: '.kobo/custom-dict/' }), h('br'),
-        h('a', { class: 'btn', href: dict.url, download: 'dicthtml-en-my.zip' }, t('dlDict'))),
-      h('li', {}, t('man2', { a: 'fonts/', b: 'fonts/kobo/' }), h('br'),
-        h('a', { class: 'btn', href: font.url, download: 'NotoSansMyanmarKobo-Regular.ttf' }, t('dlFont'))),
-      h('li', {}, t('man3', { path: kobo.CONF }), h('div', { class: 'codeline' }, h('code', {}, line), copyBtn)),
-      h('li', {}, t('man4'))),
-    h('div', { class: 'notice info' }, t('hidden')),
-    nav(h('button', { class: 'btn', onclick: () => go(0) }, t('back'))));
+    h('div', { class: 'status warn' },
+      h('div', { class: 'status-icon' }, icon('warn')),
+      h('h2', {}, t('browserTitle')),
+      h('p', {}, t('browserBody'))),
+    nav(h('button', { class: 'btn', onclick: goHome }, t('back')), copyBtn));
 }
 
 // ---------- start ----------
