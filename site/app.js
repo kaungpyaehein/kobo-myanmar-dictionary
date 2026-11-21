@@ -211,17 +211,17 @@ function connectCard() {
   }
 
   const hasItems = S.scan.items.length > 0;
+  // Main action is the big button; the others sit at the side, next to Back.
+  const side = h('div', { class: 'row' });
   if (status === 'installed') {
-    card.append(h('button', { class: 'btn primary big wide', onclick: goHome }, t('done')),
-      h('div', { class: 'row center' },
-        h('button', { class: 'btn small', disabled: !ok, onclick: startInstall }, t(installLabel)),
-        h('button', { class: 'btn small danger', onclick: startRemove }, t('doRemove'))));
+    card.append(h('button', { class: 'btn primary big wide', onclick: goHome }, t('done')));
+    side.append(h('button', { class: 'btn small', disabled: !ok, onclick: startInstall }, t(installLabel)));
   } else {
     card.append(h('button', { class: 'btn primary big wide', disabled: !ok, onclick: startInstall }, icon('install'), t(installLabel)));
-    if (hasItems) card.append(h('div', { class: 'row center' }, h('button', { class: 'btn small danger', onclick: startRemove }, t('doRemove'))));
   }
+  if (hasItems) side.append(h('button', { class: 'btn small danger', onclick: startRemove }, t('doRemove')));
 
-  card.append(nav(h('button', { class: 'btn', onclick: () => go(0) }, t('back'))));
+  card.append(nav(h('button', { class: 'btn', onclick: () => go(0) }, t('back')), side.childElementCount ? side : null));
   return card;
 }
 
